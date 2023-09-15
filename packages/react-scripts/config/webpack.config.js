@@ -328,6 +328,16 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
+        ...{
+          '@assets': path.resolve(__dirname, 'src/assets'),
+          '@components': path.resolve(__dirname, 'src/components'),
+          '@config': path.resolve(__dirname, 'src/config'),
+          '@hooks': path.resolve(__dirname, 'src/hooks'),
+          '@pages': path.resolve(__dirname, 'src/pages'),
+          '@shared': path.resolve(__dirname, 'src/shared'),
+          'glsl-shared': path.resolve(__dirname, 'src/shared/glsl-shared'),
+          '@utils': path.resolve(__dirname, 'src/utils'),
+        },
         ...(modules.webpackAliases || {}),
       },
       plugins: [
@@ -344,6 +354,9 @@ module.exports = function (webpackEnv) {
           babelRuntimeEntryHelpers,
           babelRuntimeRegenerator,
         ]),
+        new webpack.ProvidePlugin({
+          THREE: 'three',
+        }),
       ],
     },
     module: {
@@ -583,6 +596,20 @@ module.exports = function (webpackEnv) {
                 },
                 'sass-loader'
               ),
+            },
+            {
+              test: /\.(glsl|vs|fs|vert|frag)$/,
+              exclude: /node_modules/,
+              use: [
+                'glslify-import-loader',
+                'raw-loader',
+                {
+                  loader: 'glslify-loader',
+                  options: {
+                    transform: [['glslify-hex'], ['glslify-import']],
+                  },
+                },
+              ],
             },
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
